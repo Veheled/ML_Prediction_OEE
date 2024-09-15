@@ -1,0 +1,292 @@
+/* static/styles.css */
+
+body {
+    font-family: 'Boston', sans-serif;
+    margin: 0;
+    padding: 0;
+    background-color: #f2f2f2;
+    text-align: center;
+}
+
+.container {
+    width: 95%;
+    max-width: 1240px;
+    margin: 30px auto;
+    padding: 15px;
+    background-color: #fff;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    border-radius: 8px;
+}
+
+h1 {
+    color: #005a9c; /* A blue shade often associated with healthcare */
+}
+
+form {
+    margin: 20px 0;
+}
+
+input[type="text"],
+button {
+    width: 100%;
+    padding: 10px;
+    margin: 10px 0;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    box-sizing: border-box; /* Makes sure padding does not affect width */
+}
+
+input[type="text"] {
+    border: 1px solid #005a9c; /* Matching the h1 color for consistency */
+}
+
+/* Style for flex containers to make them stand out */
+.flex-container {
+    display: flex;
+    justify-content: space-between;
+}
+
+/* Style for labels within flex containers for better alignment */
+.flex-container label {
+    display: block;
+    margin-bottom: 5px;
+}
+
+/* Flex item - ensure each item takes up equal space */
+.flex-item {
+    flex: 1; /* Grow and shrink as needed and have equal basis */
+    margin-right: 10px; /* Optional spacing between flex items */
+}
+
+/* Last flex item does not need right margin */
+.flex-item:last-child {
+    margin-right: 0;
+}
+
+#comparison-flex-cont {
+    border: 1px solid #dee2e6; /* A light border color */
+    background-color: #f8f9fa; /* A light background color */
+    border-radius: 4px; /* Optional: rounded corners */
+    margin-bottom: 10px; /* Space between the containers */
+    padding: 10px; /* Padding inside the containers */
+}
+
+button {
+    background-color: #009f4d; /* A green shade representing health and vitality */
+    color: white;
+    border: none;
+    cursor: pointer;
+    font-size: medium;
+}
+
+button:hover {
+    background-color: #00753a; /* A darker shade of the button color for hover effect */
+}
+
+ul {
+    list-style: none;
+    padding: 0;
+}
+
+.pred_kpi_li {
+    background-color: #e7f4f9; /* A soft blue for a clean look on prediction items */
+    color: #333;
+    margin: 5px 0;
+    padding: 10px;
+    border-radius: 4px;
+    font-weight: bold;
+}
+
+p {
+    color: #555; /* Dark grey color for the description text */
+}
+
+#company-logo {
+    position: absolute;
+    top: 10px;
+    left: 10px;
+    width: 150px; /* You can adjust the width as necessary */
+}
+.ui-autocomplete {
+    max-height: 10vh; /* Limit the height of the autocomplete list */
+    overflow-y: auto; /* Enable scrolling if the list is too long */
+    overflow-x: hidden;
+    border: 1px solid #ccc;
+    background-color: #fff;
+    border-radius: 4px;
+    box-shadow: 0 2px 2px rgba(0,0,0,0.2); /* Add a subtle shadow for depth */
+}
+
+.ui-menu-item {
+    font-size: 0.875rem; /* Smaller font size for menu items */
+    padding: 0.5em 1em; /* Smaller padding for menu items */
+}
+
+.ui-menu-item-wrapper {
+    border-bottom: 1px solid #f0f0f0; /* Add a separator between items */
+}
+
+.ui-menu-item:last-child .ui-menu-item-wrapper {
+    border-bottom: none; /* Remove the border from the last item */
+}
+
+.ui-widget {
+    font-family: 'Boston', sans-serif; /* Inherit the font from the body */
+}
+
+/* Add this to your styles.css file */
+.toast {
+    visibility: hidden; /* Hidden by default */
+    min-width: 250px;
+    margin-left: -125px;
+    background-color: #333;
+    color: #fff;
+    text-align: center;
+    border-radius: 2px;
+    padding: 16px;
+    position: fixed;
+    z-index: 1;
+    left: 50%;
+    bottom: 30px;
+    font-size: 17px;
+}
+
+.toast.show {
+    visibility: visible; /* Show the toast */
+    -webkit-animation: fadein 0.5s, fadeout 0.5s 2.5s;
+    animation: fadein 0.5s, fadeout 0.5s 2.5s;
+}
+
+/* Adjustments for the nav-tabs */
+.nav-tabs {
+    display: flex;          /* Use flexbox for layout */
+    justify-content: center; /* Center the tabs */
+    border-bottom: none;    /* Remove the default border under the tabs */
+}
+
+/* Style for individual tabs */
+.nav-item {
+    width: 33%; /* Each tab takes up 50% of the space */
+    text-align: center; /* Center the text inside the tab */
+    font-weight: bold;
+}
+
+/* Active tab style */
+.nav-link.active {
+    border: 1px solid #dee2e6;
+    border-bottom-color: transparent; /* Make the active tab connected to the content */
+}
+
+/* Hover effect for tabs */
+.nav-link:hover {
+    border: 1px solid #dee2e6;
+    border-bottom-color: transparent;
+}
+
+/* Tab content styling */
+.tab-content {
+    border: 1px solid #dee2e6; /* Add a border around the tab content */
+    padding: 8px; /* Add some padding inside the content area */
+    margin-top: -1px; /* Align with the bottom of the tabs */
+}
+
+/* COMPARISON STYLES
+*/
+.comparison-kpi-red {
+    color: red;
+}
+
+.comparison-kpi-green {
+    color: green;
+}
+
+.comparison-kpi-black {
+    color: black;
+}
+
+#button_exec_pred {
+    max-width: fit-content;
+    padding: 10px;
+}
+
+#comp_input_form {
+    margin: 0 auto; /* Center the form within its container */
+    display: block; /* Use block to allow margin auto to work */
+    width: 50%;
+}
+
+#vorhersage_output {
+    margin: 0 auto; /* Center the form within its container */
+    display: block; /* Use block to allow margin auto to work */
+    width: 50%;
+}
+
+@-webkit-keyframes fadein {
+    from {bottom: 0; opacity: 0;} 
+    to {bottom: 30px; opacity: 1;}
+}
+
+@keyframes fadein {
+    from {bottom: 0; opacity: 0;}
+    to {bottom: 30px; opacity: 1;}
+}
+
+@-webkit-keyframes fadeout {
+    from {bottom: 30px; opacity: 1;} 
+    to {bottom: 0; opacity: 0;}
+}
+
+@keyframes fadeout {
+    from {bottom: 30px; opacity: 1;}
+    to {bottom: 0; opacity: 0;}
+}
+
+.loading-spinner-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5); /* Darken the background */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+}
+
+.loading-spinner-content {
+    text-align: center;
+    color: white;
+    background-color: white;
+    padding: 10px;
+    border-radius: 5%;
+}
+
+.loading-spinner-content img {
+    width: 100px;
+    height: 100px;
+}
+
+.loading-spinner-content p {
+    margin-top: 10px;
+    font-size: 18px;
+    font-weight: bold;
+}
+
+/* Add these lines to your styles.css file */
+
+.table-striped tbody tr.highlight {
+    background-color: #f8d7da !important; /* Light red color */
+}
+
+.table-striped tbody tr.highlight:nth-of-type(odd) {
+    background-color: #f8d7da !important; /* Light red color */
+}
+
+.table-striped tbody tr.highlight:nth-of-type(even) {
+    background-color: #f8d7da !important; /* Light red color */
+}
+
+.table-striped tbody tr.summary-row {
+    background-color: #ffffff !important; /* White background */
+}

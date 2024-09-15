@@ -1,0 +1,303 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>OEE Machine Learning Predictions</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+    <link rel="icon" type="image/svg+xml" href="{{ url_for('static', filename='logo.svg') }}">
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"></script>
+</head>
+<body>
+    <img src="{{ url_for('static', filename='logo.svg') }}" alt="Company Logo" id="company-logo">
+    <script>
+        $(function() {
+            var productCodes = {{ product_codes_list | tojson }};
+            $("#artikel-input, #vorgaenger-artikel-input").autocomplete({
+                source: productCodes
+            });
+            var lineCodes = {{ line_codes_list | tojson }};
+            $("#linie-input").autocomplete({
+                source: lineCodes
+            });
+        });
+        {% if prediction_made %}
+            $('#toast').toast({ delay: 1000 });
+            $('#toast').toast('show');
+        {% endif %}
+        function showLoadingSpinner() {
+            document.getElementById('loadingSpinner').style.display = 'flex';
+        }
+    </script>
+   
+   <div id="toast" class="toast">Vorhersage erfolgreich!</div>
+   <div class="container mt-3">
+        <!-- Nav tabs -->
+        <ul class="nav nav-tabs" id="predictionTabs" role="tablist">
+            <li class="nav-item">
+                <a class="nav-link active" id="single-prediction-tab" data-toggle="tab" href="#singlePrediction" role="tab" aria-controls="singlePrediction" aria-selected="true">Einzelauftrag Vorhersage</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" id="compare-prediction-tab" data-toggle="tab" href="#comparePrediction" role="tab" aria-controls="comparePrediction" aria-selected="false">Auftragsvergleich Vorhersage</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" id="order-planning-tab" data-toggle="tab" href="#orderPlanning" role="tab" aria-controls="orderPlanning" aria-selected="false">Auftragsplanung</a>
+            </li>
+        </ul>
+
+        <!-- Tab panes -->
+        <div class="tab-content">
+            <!-- Single Prediction Tab -->
+            <div class="tab-pane fade show active" id="singlePrediction" role="tabpanel" aria-labelledby="single-prediction-tab">
+                <!-- Existing single prediction form -->
+                <h3>Auftragsdaten eingeben:</h3>
+                <form id="comp_input_form" method="post">
+                    <input type="hidden" name="form_type" value="single_prediction">
+                    Vorgänger-Artikel: <input type="text" id="vorgaenger-artikel-input" name="vorgaenger_artikel" value="{{ previous_inputs.vorgaenger_artikel if previous_inputs else '' }}" required><br>
+                    Produktionslinie: <input type="text" id="linie-input" name="maschine" value="{{ previous_inputs.maschine if previous_inputs else '' }}" required><br>
+                    Artikelnummer: <input type="text" id="artikel-input" name="artikel" value="{{ previous_inputs.artikel if previous_inputs else '' }}" required><br>
+                    Auftragsgröße: <input type="text" name="auftragsgroesse" value="{{ previous_inputs.auftragsgroesse if previous_inputs else '' }}" required><br>
+                    <button type="submit" id="button_exec_pred" class="btn btn-primary mt-2">Vorhersage ausführen!</button>
+                </form>
+                {% if prediction_made %}
+                    <script>
+                        // Function to show the toast notification
+                        function showToast(message) {
+                            var toast = document.getElementById("toast");
+                            toast.className = "toast show";
+                            toast.textContent = message; // Set the text for the toast
+                            setTimeout(function(){ toast.className = toast.className.replace("show", ""); }, 3000);
+                        }
+                
+                        {% if prediction_made %}
+                            // Show toast on page load when a prediction was made
+                            window.onload = function() {
+                                showToast('{{ alert }}');
+                            };
+                        {% endif %}
+                    </script>
+                    <h2><u>Kennzahlen Vorhersage:</u></h2>
+                        <ul id="vorhersage_output">
+                            <li class="pred_kpi_li">Overall Equipment Efficiency (OEE): {{ "%.2f"|format(predictions['OEE']) }}%</li>
+                            <li class="pred_kpi_li">Verfügbarkeit: {{ "%.2f"|format(predictions['AVAIL']) }}%</li>
+                            <li class="pred_kpi_li">Leistung: {{ "%.2f"|format(predictions['PERF']) }}%</li>
+                            <li class="pred_kpi_li">Qualität: {{ "%.2f"|format(predictions['QUAL']) }}%</li>
+                            <li class="pred_kpi_li">Hauptnutzungszeit: {{ "%.1f"|format(predictions['APT']) }} h</li>
+                            <li class="pred_kpi_li">Planbelegungszeit: {{ "%.1f"|format(predictions['PBT']) }} h</li>
+                        </ul>
+                    {% endif %}
+            </div>
+
+            <!-- Comparison Prediction Tab -->
+            <div class="tab-pane fade" id="comparePrediction" role="tabpanel" aria-labelledby="compare-prediction-tab">
+                <h3>Auftragsdaten eingeben:</h3>
+                <form id="comp_input_form" method="post">
+                    <input type="hidden" name="form_type" value="compare_prediction">
+                    Vorgänger-Artikel: <input type="text" id="vorgaenger-artikel-input" name="vorgaenger_artikel" value="{{ previous_inputs.vorgaenger_artikel if previous_inputs else '' }}" required><br>
+                    Produktionslinie: <input type="text" id="linie-input" name="maschine" value="{{ previous_inputs.maschine if previous_inputs else '' }}" required><br>
+                    <div id="comparison-flex-cont">
+                        <div class="flex-container">
+                            <div class="flex-item">
+                                <label for="artikel-input">Artikelnummer:</label>
+                                <input type="text" id="artikel-input" name="artikel" value="{{ previous_inputs.artikel if previous_inputs else '' }}" required>
+                            </div>
+                            <div class="flex-item">
+                                <label for="artikel-vergleich-input">Artikelnummer Vergleich:</label>
+                                <input type="text" id="artikel-vergleich-input" name="artikel2" value="{{ previous_inputs.artikel2 if previous_inputs else '' }}" required>
+                            </div>
+                        </div>
+                        <div class="flex-container">
+                            <div class="flex-item">
+                                <label for="auftragsgroesse-input">Auftragsgröße:</label>
+                                <input type="text" id="auftragsgroesse-input" name="auftragsgroesse" value="{{ previous_inputs.auftragsgroesse if previous_inputs else '' }}" required>
+                            </div>
+                            <div class="flex-item">
+                                <label for="auftragsgroesse-vergleich-input">Auftragsgröße Vergleich:</label>
+                                <input type="text" id="auftragsgroesse-vergleich-input" name="auftragsgroesse2" value="{{ previous_inputs.auftragsgroesse2 if previous_inputs else '' }}" required>
+                            </div>
+                        </div>
+                    </div>
+                    <button type="submit" id="button_exec_pred" class="btn btn-primary mt-2">Vergleich durchführen!</button>
+                </form>
+                {% if prediction_made and previous_inputs.form_type == 'compare_prediction' %}
+                <script>
+                    // Function to show the toast notification
+                    function showToast(message) {
+                        var toast = document.getElementById("toast");
+                        toast.className = "toast show";
+                        toast.textContent = message; // Set the text for the toast
+                        setTimeout(function(){ toast.className = toast.className.replace("show", ""); }, 3000);
+                    }
+            
+                    {% if prediction_made %}
+                        // Show toast on page load when a prediction was made
+                        window.onload = function() {
+                            showToast('{{ alert }}');
+                        };
+                    {% endif %}
+                </script>
+                <h2><u>Kennzahlen Vorhersage:</u></h2>
+                    <div class="flex-container">
+                        <div class="flex-item">
+                            <ul>
+                                <li class="pred_kpi_li">Overall Equipment Efficiency (OEE): {{ "%.2f"|format(predictions['OEE']) }}%</li>
+                                <li class="pred_kpi_li">Verfügbarkeit: {{ "%.2f"|format(predictions['AVAIL']) }}%</li>
+                                <li class="pred_kpi_li">Leistung: {{ "%.2f"|format(predictions['PERF']) }}%</li>
+                                <li class="pred_kpi_li">Qualität: {{ "%.2f"|format(predictions['QUAL']) }}%</li>
+                                <li class="pred_kpi_li">Hauptnutzungszeit: {{ "%.1f"|format(predictions['APT']) }} h</li>
+                                <li class="pred_kpi_li">Planbelegungszeit: {{ "%.1f"|format(predictions['PBT']) }} h</li>
+                            </ul>
+                        </div>
+                        <div class="flex-item">
+                            <ul>
+                                <li class="pred_kpi_li">Overall Equipment Efficiency (OEE): {{ "%.2f"|format(predictions2['OEE']) }}%</li>
+                                <li class="pred_kpi_li">Verfügbarkeit: {{ "%.2f"|format(predictions2['AVAIL']) }}%</li>
+                                <li class="pred_kpi_li">Leistung: {{ "%.2f"|format(predictions2['PERF']) }}%</li>
+                                <li class="pred_kpi_li">Qualität: {{ "%.2f"|format(predictions2['QUAL']) }}%</li>
+                                <li class="pred_kpi_li">Hauptnutzungszeit: {{ "%.1f"|format(predictions2['APT']) }} h</li>
+                                <li class="pred_kpi_li">Planbelegungszeit: {{ "%.1f"|format(predictions2['PBT']) }} h</li>
+                            </ul>
+                        </div>
+                        <div class="flex-item">
+                            <ul>
+                                <li class="pred_kpi_li">Overall Equipment Efficiency (OEE): <span class="{{ 'comparison-kpi-red' if compare_results['OEE'] < 0    else 'comparison-kpi-green' if compare_results['OEE'] > 0  }}">{{ "%.2f"|format(compare_results['OEE']) }}%</span></li>
+                                <li class="pred_kpi_li">Verfügbarkeit: <span class="{{ 'comparison-kpi-red' if compare_results['AVAIL'] < 0  else 'comparison-kpi-green' if compare_results['AVAIL'] > 0}}">{{ "%.2f"|format(compare_results['AVAIL']) }}%</span></li>
+                                <li class="pred_kpi_li">Leistung: <span class="{{ 'comparison-kpi-red' if compare_results['PERF'] < 0   else 'comparison-kpi-green' if compare_results['PERF'] > 0 }}">{{ "%.2f"|format(compare_results['PERF']) }}%</span></li>
+                                <li class="pred_kpi_li">Qualität: <span class="{{ 'comparison-kpi-red' if compare_results['QUAL'] < 0   else 'comparison-kpi-green' if compare_results['QUAL'] > 0 }}">{{ "%.2f"|format(compare_results['QUAL']) }}%</span></li>
+                                <li class="pred_kpi_li">Hauptnutzungszeit: <span class="{{ 'comparison-kpi-red' if compare_results['APT'] < 0    else 'comparison-kpi-green' if compare_results['APT'] > 0  }}">{{ "%.1f"|format(compare_results['APT']) }} h</span></li>
+                                <li class="pred_kpi_li">Planbelegungszeit: <span class="{{ 'comparison-kpi-red' if compare_results['PBT'] < 0    else 'comparison-kpi-green' if compare_results['PBT'] > 0  }}">{{ "%.1f"|format(compare_results['PBT']) }} h</span></li>
+                            </ul>
+                        </div>
+                    </div>
+                {% endif %}
+            </div>
+
+            <!-- Content for the Order Planning Tab -->
+            <div class="tab-pane fade" id="orderPlanning" role="tabpanel" aria-labelledby="order-planning-tab">
+                <h3>Auftragsdaten eingeben:</h3>
+                <form id="order_input_form" method="post" onsubmit="showLoadingSpinner()">
+                    <input type="hidden" name="form_type" value="order_planning">
+                    Vorgänger-Artikel: <input type="text" id="vorgaenger-artikel-input" name="vorgaenger_artikel" value="{{ previous_inputs.vorgaenger_artikel if previous_inputs else '' }}" required><br>
+                    Produktionslinie: <input type="text" id="linie-input" name="maschine" value="{{ previous_inputs.maschine if previous_inputs else '' }}" required><br>
+                    Berechnungsmethode:
+                    <select name="calculation_method" class="form-control" required>
+                        <option value="greedy" {% if previous_inputs and previous_inputs.calculation_method == 'greedy' %}selected{% endif %}>Greedy Search</option>
+                        <option value="optimal" {% if previous_inputs and previous_inputs.calculation_method == 'optimal' %}selected{% endif %}>Optimal Search</option>
+                        <option value="sim_anneal" {% if previous_inputs and previous_inputs.calculation_method == 'sim_anneal' %}selected{% endif %}>Simulated Annealing</option>
+                    </select>
+                    <br>
+                    <textarea name="order_data" class="form-control" rows="10" placeholder="Bestelldaten hier einfügen..."></textarea>
+                    <button type="submit" class="btn btn-primary mt-2">Produktionsplanung berechnen</button>
+                </form>
+                <div id="loadingSpinner" class="loading-spinner-overlay" style="display: none;">
+                    <div class="loading-spinner-content">
+                        <img src="{{ url_for('static', filename='LoadingSpinner.gif') }}" alt="Loading...">
+                        <p>Auftragsplanung wird berechnet!</p>
+                    </div>
+                </div>
+                {% if original_order %}
+                    <h4><u>Ursprüngliche Produktionsreihenfolge:</u></h4>
+                    <table class="table table-striped">
+                        <thead>
+                            <tr>
+                                <th>Position</th>
+                                <th>Produktcode</th>
+                                <th>Menge</th>
+                                <th>OEE</th>
+                                <th>Verfügbarkeit</th>
+                                <th>Leistung</th>
+                                <th>Qualität</th>
+                                <th>Hauptnutzungszeit</th>
+                                <th>Planbelegungszeit</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for order in original_order %}
+                                <tr>
+                                    <td>{{ order['Position'] }}</td>
+                                    <td>{{ order['ProductCode'] }}</td>
+                                    <td>{{ order['Quantity'] }}</td>
+                                    <td>{{ "%.2f" | format(order['OEE']  ) }}%</td>
+                                    <td>{{ "%.2f" | format(order['AVAIL']) }}%</td>
+                                    <td>{{ "%.2f" | format(order['PERF'] ) }}%</td>
+                                    <td>{{ "%.2f" | format(order['QUAL'] ) }}%</td>
+                                    <td>{{ "%.1f" | format(order['APT']  ) }} h</td>
+                                    <td>{{ "%.1f" | format(order['PBT']  ) }} h</td>
+                                </tr>
+                            {% endfor %}
+                            <tr class="summary-row">
+                                <td colspan="3"><b>Gesamt</b></td>
+                                <td><b>{{ "%.2f"|format(original_summary['OEE']) }}%</b></td>
+                                <td><b>{{ "%.2f"|format(original_summary['AVAIL']) }}%</b></td>
+                                <td><b>{{ "%.2f"|format(original_summary['PERF']) }}%</b></td>
+                                <td><b>{{ "%.2f"|format(original_summary['QUAL']) }}%</b></td>
+                                <td><b>{{ "%.1f"|format(original_summary['APT']) }} h</b></td>
+                                <td><b>{{ "%.1f"|format(original_summary['PBT']) }} h</b></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                {% endif %}
+                {% if best_order %}
+                    <h4><u>Optimale Produktionsreihenfolge:</u></h4>
+                    <table class="table table-striped">
+                        <thead>
+                            <tr>
+                                <th>Position</th>
+                                <th>Produktcode</th>
+                                <th>Menge</th>
+                                <th>OEE</th>
+                                <th>Verfügbarkeit</th>
+                                <th>Leistung</th>
+                                <th>Qualität</th>
+                                <th>Hauptnutzungszeit</th>
+                                <th>Planbelegungszeit</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for order, original_order_row in combined_order %}
+                                <tr class="{% if order['ProductCode'] != original_order_row['ProductCode'] %}highlight{% endif %}">
+                                    <td>{{ order['Position'] }}</td>
+                                    <td>{{ order['ProductCode'] }}</td>
+                                    <td>{{ order['Quantity'] }}</td>
+                                    <td>{{ "%.2f" | format(order['OEE']) }}%</td>
+                                    <td>{{ "%.2f" | format(order['AVAIL']) }}%</td>
+                                    <td>{{ "%.2f" | format(order['PERF']) }}%</td>
+                                    <td>{{ "%.2f" | format(order['QUAL']) }}%</td>
+                                    <td>{{ "%.1f" | format(order['APT']) }} h</td>
+                                    <td>{{ "%.1f" | format(order['PBT']) }} h</td>
+                                </tr>
+                            {% endfor %}
+                            <tr class="summary-row">
+                                <td colspan="3"><b>Gesamt</b></td>
+                                <td><b>{{ "%.2f"|format(optimal_summary['OEE']) }}%</b></td>
+                                <td><b>{{ "%.2f"|format(optimal_summary['AVAIL']) }}%</b></td>
+                                <td><b>{{ "%.2f"|format(optimal_summary['PERF']) }}%</b></td>
+                                <td><b>{{ "%.2f"|format(optimal_summary['QUAL']) }}%</b></td>
+                                <td><b>{{ "%.1f"|format(optimal_summary['APT']) }} h</b></td>
+                                <td><b>{{ "%.1f"|format(optimal_summary['PBT']) }} h</b></td>
+                            </tr>
+                        </tbody>
+                    </table>                    
+                {% endif %}
+            </div>
+        </div>
+    </div>
+    <script>
+        $('a[data-toggle="tab"]').on('shown.bs.tab', function (e) {
+            var activeTab = $(e.target).attr('href');
+            sessionStorage.setItem('activeTab', activeTab);
+        });
+
+        $(document).ready(function () {
+            var activeTab = sessionStorage.getItem('activeTab');
+            if(activeTab){
+                $('#predictionTabs a[href="' + activeTab + '"]').tab('show');
+            }
+        });
+
+    </script>    
+</body>
+</html>
