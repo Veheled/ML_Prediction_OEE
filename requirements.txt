@@ -3,3 +3,11 @@ numpy
 openpyxl
 torch
 scikit-learn
+matplotlib
+xgboost
+catboost
+lightgbm
+optuna
+scipy
+flask
+joblib
