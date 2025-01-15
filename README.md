@@ -1,5 +1,5 @@
 # Project Title
-Evaluation of Selected Data-Driven Machine Learning Approaches for Production Planning to Enhance Order Sequencing and Improve OEE in Manufacturing 
+Evaluation and feasibility of selected data-driven Machine Learning approaches for Production Planning to enhance Order Sequencing and to improve OEE in Manufacturing
 
 # Project Summary: 
 
