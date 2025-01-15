@@ -1,3 +1,16 @@
+# Project Title
+Evaluation of Selected Data-Driven Machine Learning Approaches for Production Planning to Enhance Order Sequencing and Improve OEE in Manufacturing 
+
+# Project Summary: 
+
+The thesis investigates the use of data-driven machine learning (ML) techniques to improve production planning and enhance Overall Equipment Effectiveness (OEE) in the pharmaceutical manufacturing industry, conducted in collaboration with Dr. Pfleger Arzneimittel GmbH. The study investigates the OEE, which measures key challenges in production scheduling, including machine downtime, suboptimal performance, and quality inefficiencies. 
+
+Through a structured methodology rooted in action research and Design Science Research (DSR), the project incorporates data integration, feature engineering, model training, and hyperparameter optimization to predict OEE and other Key Performance Indicators (KPIs). Ten different ML-algorithms were evaluated, with ensemble methods emerging as top performers in predicting the OEE. To ensure stakeholder trust and transparency, the models were investigated with SHAP values. While implementing the ML-algorithms this thesis phased classical challenge of practical projects, like limited data availability, bad data quality and changing project goals during the implementation period. 
+
+The research outcomes include a functional prototype of a web-based user interface that integrates trained ML models to support human planners in generating optimized production schedules. The interface enables planners to simulate production scenarios, visualize scheduling proposals, and make informed decisions to reduce downtime and operational losses. Although fully autonomous scheduling was beyond the project's scope, the thesis demonstrates the potential of ML-driven decision-support systems in achieving incremental efficiency gains and minimizing production losses. 
+
+This work underscores the feasibility of using machine learning to predict KPIs and improve production planning, showing in a practical setting how ML can be used in smart manufacturing. It provides a foundation for future developments toward autonomous scheduling and increased operational excellence in the manufacturing domain
+
 # Project Repository Overview
 
 This repository contains Jupyter notebooks and Python modules designed for data processing, feature engineering, model training, and deployment through a web interface. The repository is structured to guide the user from loading raw data to optimizing a machine learning model, and includes integration with a simple Flask-based web interface.
